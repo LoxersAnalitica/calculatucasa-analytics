@@ -8,10 +8,14 @@ import { DynamicsSection } from '@/components/sections/DynamicsSection';
 import { ValoracionSection } from '@/components/sections/ValoracionSection';
 import { ClubInversionSection } from '@/components/sections/ClubInversionSection';
 import { MiCuentaSection } from '@/components/sections/MiCuentaSection';
+import { generateMockData } from '@/utils/mockData';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
+  // Generate mock data for all sections
+  const { baseData, historico } = generateMockData();
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(prev => !prev);
@@ -20,13 +24,13 @@ const Index = () => {
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'overview':
-        return <OverviewSection />;
+        return <OverviewSection baseData={baseData} historico={historico} />;
       case 'barrios':
         return <BarriosSection />;
       case 'sociodemografia':
-        return <SociodemografiaSection />;
+        return <SociodemografiaSection baseData={baseData} />;
       case 'dynamics':
-        return <DynamicsSection />;
+        return <DynamicsSection baseData={baseData} />;
       case 'valoracion':
         return <ValoracionSection />;
       case 'club-inversion':
@@ -34,7 +38,7 @@ const Index = () => {
       case 'mi-cuenta':
         return <MiCuentaSection />;
       default:
-        return <OverviewSection />;
+        return <OverviewSection baseData={baseData} historico={historico} />;
     }
   };
 

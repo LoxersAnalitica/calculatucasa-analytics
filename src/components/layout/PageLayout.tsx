@@ -10,6 +10,7 @@ interface PageLayoutProps {
 
 export function PageLayout({ children, title }: PageLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeSection, setActiveSection] = useState('overview');
   
   const toggleSidebar = () => {
     setIsSidebarCollapsed(prev => !prev);
@@ -20,7 +21,12 @@ export function PageLayout({ children, title }: PageLayoutProps) {
       <Navbar />
       
       <div className="flex-1 flex">
-        <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
+        <Sidebar 
+          isCollapsed={isSidebarCollapsed} 
+          onToggle={toggleSidebar}
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+        />
         
         <main className="flex-1 transition-all duration-300">
           <div className="container max-w-full p-4 lg:p-6 animate-fade-in">

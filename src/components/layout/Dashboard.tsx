@@ -17,6 +17,7 @@ import { BarChart3, TrendingDown, TrendingUp, Wallet2 } from 'lucide-react';
 
 export function Dashboard() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeSection, setActiveSection] = useState('overview');
   const [selectedStock, setSelectedStock] = useState(mockStocks[0]);
   
   // Use our hooks to get real-time mock data
@@ -54,7 +55,12 @@ export function Dashboard() {
       <Navbar />
       
       <div className="flex-1 flex">
-        <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
+        <Sidebar 
+          isCollapsed={isSidebarCollapsed} 
+          onToggle={toggleSidebar}
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+        />
         
         <main className="flex-1 transition-all duration-300">
           <div className="container max-w-full p-4 lg:p-6 animate-fade-in">
