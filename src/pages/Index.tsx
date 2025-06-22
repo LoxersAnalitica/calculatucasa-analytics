@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { generateMockData } from '@/utils/mockData';
 import { OverviewSection } from '@/components/sections/OverviewSection';
 import { BarriosSection } from '@/components/sections/BarriosSection';
-import { DemographicsSection } from '@/components/sections/DemographicsSection';
+import { SociodemografiaSection } from '@/components/sections/SociodemografiaSection';
 import { DynamicsSection } from '@/components/sections/DynamicsSection';
-import { InsightsSection } from '@/components/sections/InsightsSection';
+import { ValoracionSection } from '@/components/sections/ValoracionSection';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -22,12 +22,12 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                Off-Market Intelligence
+                CalculaTuCasa
               </h1>
-              <p className="text-slate-400">Barrio de Salamanca, Madrid</p>
+              <p className="text-slate-400">Analytics Inmobiliarios - Barrio de Salamanca, Madrid</p>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="border-emerald-400 text-emerald-400">{baseData.periodo}</Badge>
+              <Badge variant="outline" className="border-emerald-400 text-emerald-400">Q1-2025</Badge>
               <div className="flex items-center space-x-1">
                 <div className="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></div>
                 <span className="text-sm text-slate-400">Live</span>
@@ -40,13 +40,12 @@ const Index = () => {
       {/* Navigation */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeSection} onValueChange={setActiveSection}>
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 bg-slate-800/50 border-slate-700">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border-slate-700">
             <TabsTrigger value="overview" className="data-[state=active]:bg-emerald-600">Overview</TabsTrigger>
             <TabsTrigger value="barrios" className="data-[state=active]:bg-emerald-600">Barrios</TabsTrigger>
-            <TabsTrigger value="demographics" className="data-[state=active]:bg-emerald-600">Demografía</TabsTrigger>
-            <TabsTrigger value="metrics" className="data-[state=active]:bg-emerald-600">Métricas</TabsTrigger>
+            <TabsTrigger value="sociodemografia" className="data-[state=active]:bg-emerald-600">Sociodemografía</TabsTrigger>
             <TabsTrigger value="dynamics" className="data-[state=active]:bg-emerald-600">Dinámicas</TabsTrigger>
-            <TabsTrigger value="insights" className="data-[state=active]:bg-emerald-600">Insights</TabsTrigger>
+            <TabsTrigger value="valoracion" className="data-[state=active]:bg-emerald-600">Valoración</TabsTrigger>
           </TabsList>
 
           <div className="mt-6">
@@ -58,29 +57,16 @@ const Index = () => {
               <BarriosSection />
             </TabsContent>
 
-            <TabsContent value="demographics" className="space-y-6">
-              <DemographicsSection baseData={baseData} />
-            </TabsContent>
-
-            <TabsContent value="metrics" className="space-y-6">
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Todas las Métricas - {baseData.periodo}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center text-slate-400">
-                    <p>Tabla completa con las 36 métricas estará disponible próximamente</p>
-                  </div>
-                </CardContent>
-              </Card>
+            <TabsContent value="sociodemografia" className="space-y-6">
+              <SociodemografiaSection baseData={baseData} />
             </TabsContent>
 
             <TabsContent value="dynamics" className="space-y-6">
               <DynamicsSection baseData={baseData} />
             </TabsContent>
 
-            <TabsContent value="insights" className="space-y-6">
-              <InsightsSection />
+            <TabsContent value="valoracion" className="space-y-6">
+              <ValoracionSection />
             </TabsContent>
           </div>
         </Tabs>
