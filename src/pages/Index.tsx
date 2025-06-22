@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { UserMenu } from '@/components/layout/UserMenu';
 import { OverviewSection } from '@/components/sections/OverviewSection';
 import { BarriosSection } from '@/components/sections/BarriosSection';
 import { SociodemografiaSection } from '@/components/sections/SociodemografiaSection';
@@ -56,11 +57,14 @@ const Index = () => {
       <main className="flex-1 transition-all duration-300">
         <div className="container max-w-full p-4 lg:p-6">
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              CalculaTuCasa
-            </h1>
-            <p className="text-slate-400">Analytics Inmobiliarios - Barrio de Salamanca, Madrid</p>
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                CalculaTuCasa
+              </h1>
+              <p className="text-slate-400">Analytics Inmobiliarios - Barrio de Salamanca, Madrid</p>
+            </div>
+            <UserMenu />
           </div>
 
           {/* Active Section */}
