@@ -1,0 +1,216 @@
+import { getSheetData } from '@/lib/googleSheets';import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Star, MapPin, Loader2 } from 'lucide-react';
+import { BarrioDashboard } from '@/components/barrios/BarrioDashboard';
+import { formatEuro, formatNumber } from '@/utils/formatters';
+import { getSheetData, getBarrioHistoricoData } from '@/utils/googleSheets';
+
+export const BarriosSection: React.FC = () => {
+  const [selectedBarrio, setSelectedBarrio] = useState('');
+  const [barrios, setBarrios] = useState([]);
+  const [selectedBarrioData, setSelectedBarrioData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingBarrio, setLoadingBarrio] = useState(false);
+
+  // Cargar lista de barrios al montar el componente
+  useEffect(() => {
+    const loadBarrios = async () => {
+      try {
+        setLoading(true);
+        const data = await getSheetData('Métricas');
+        
+        // 📊 DEBUG: Ver qué datos llegan del Google Sheet
+        console.log('📊 DATOS RECIBIDOS DEL SHEET:', data);
+        console.log('📊 PRIMERA FILA:', data[0]);
+        console.log('📊 COLUMNAS DISPONIBLES:', Object.keys(data[0]));
+        
+        if (data && data.length > 0) {
+          // Transformar datos del sheet al formato esperado
+          const barriosData = data.map(row => ({
+            nombre: row.barrio || '',
+            precio_m2: parseInt(row.precio_m2) || 0,
+            stock: parseInt(row.viviendas_en_venta) || 0,
+            leads: parseFloat(row.leads_por_anuncio) || 0,
+            rating: parseFloat(row.rating) || 0,
+            poblacion_total: parseInt(row.poblacion_total) || 0,
+            renta_familiar: parseInt(row.renta_familiar) || 0,
+            edad_media: parseFloat(row.edad_media) || 0,
+            viviendas_propias: parseFloat(row.viviendas_propias) || 0,
+            esfuerzo_familiar: parseFloat(row.esfuerzo_familiar) || 0,
+            descuento_negociacion: parseFloat(row.descuento_negociacion) || 0,
+            stage: row.stage || 'N/A',
+            speed: row.speed || 'N/A',
+            risk: row.risk || 'N/A'
+          })).filter(barrio => barrio.nombre); // Filtrar filas vacías
+          
+          setBarrios(barriosData);
+        }
+      } catch (error) {
+        console.error('Error loading barrios:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBarrios();
+  }, []);
+
+  // Cargar datos específicos del barrio seleccionado
+  useEffect(() => {
+    const loadBarrioData = async () => {
+      if (!selectedBarrio) {
+        setSelectedBarrioData(null);
+        return;
+      }
+
+      try {
+        setLoadingBarrio(true);
+        
+        // Buscar datos base del barrio
+        const barrioBase = barrios.find(b => b.nombre === selectedBarrio);
+        if (!barrioBase) return;
+
+        // Cargar datos históricos
+        const historicoData = await getBarrioHistoricoData(selectedBarrio);
+        
+        // Combinar datos base con históricos
+        const barrioCompleto = {
+          ...barrioBase,
+          historico: historicoData
+        };
+
+        setSelectedBarrioData(barrioCompleto);
+      } catch (error) {
+        console.error('Error loading barrio data:', error);
+      } finally {
+        setLoadingBarrio(false);
+      }
+    };
+
+    loadBarrioData();
+  }, [selectedBarrio, barrios]);
+
+  const handleBarrioSelection = (nombreBarrio) => {
+    if (selectedBarrio === nombreBarrio) {
+      setSelectedBarrio('');
+    } else {
+      setSelectedBarrio(nombreBarrio);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+        <span className="ml-2 text-slate-300">Cargando datos de barrios...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Selector de Barrio */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <MapPin className="h-5 w-5 text-emerald-400 mr-2" />
+            Seleccionar Sub-barrio para Dashboard Completo
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {barrios.map((barrio, index) => (
+              <Button
+                key={index}
+                variant={selectedBarrio === barrio.nombre ? "default" : "outline"}
+                onClick={() => handleBarrioSelection(barrio.nombre)}
+                className={selectedBarrio === barrio.nombre ? 
+                  "bg-emerald-600 text-white" : 
+                  "border-slate-600 text-slate-300 hover:bg-slate-700"
+                }
+                disabled={loadingBarrio}
+              >
+                {barrio.nombre}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabla comparativa */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardHeader>
+          <CardTitle className="text-white">Comparativa por Sub-barrios</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-700">
+                  <th className="text-left p-2 text-slate-300">Sub-barrio</th>
+                  <th className="text-right p-2 text-slate-300">Precio €/m²</th>
+                  <th className="text-right p-2 text-slate-300">Stock</th>
+                  <th className="text-right p-2 text-slate-300">Leads/Anuncio</th>
+                  <th className="text-right p-2 text-slate-300">Rating</th>
+                  <th className="text-center p-2 text-slate-300">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {barrios.map((barrio, index) => (
+                  <tr 
+                    key={index}
+                    className={`border-b border-slate-700 hover:bg-slate-700/30 cursor-pointer ${
+                      selectedBarrio === barrio.nombre ? 'bg-emerald-900/20' : ''
+                    }`}
+                    onClick={() => handleBarrioSelection(barrio.nombre)}
+                  >
+                    <td className="p-2 font-medium text-white">{barrio.nombre}</td>
+                    <td className="p-2 text-right text-slate-300">{formatEuro(barrio.precio_m2)}</td>
+                    <td className="p-2 text-right text-slate-300">{formatNumber(barrio.stock)}</td>
+                    <td className="p-2 text-right text-slate-300">{barrio.leads}</td>
+                    <td className="p-2 text-right text-slate-300">
+                      <div className="flex items-center justify-end">
+                        <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                        {barrio.rating}
+                      </div>
+                    </td>
+                    <td className="p-2 text-center">
+                      {selectedBarrio === barrio.nombre ? (
+                        <span className="text-emerald-400 text-xs">Activo</span>
+                      ) : (
+                        <span className="text-slate-500 text-xs">Click para activar</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Dashboard del barrio seleccionado */}
+      {selectedBarrio && (
+        <>
+          {loadingBarrio ? (
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="flex items-center justify-center p-8">
+                <Loader2 className="h-6 w-6 animate-spin text-emerald-400 mr-2" />
+                <span className="text-slate-300">Cargando dashboard de {selectedBarrio}...</span>
+              </CardContent>
+            </Card>
+          ) : selectedBarrioData ? (
+            <BarrioDashboard barrio={selectedBarrioData} />
+          ) : (
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-8 text-center">
+                <span className="text-slate-400">Error al cargar datos de {selectedBarrio}</span>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+    </div>
+  );
+};

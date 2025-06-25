@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Calculator, FileText, MapPin, AlertCircle } from 'lucide-react';
+import { Calculator, FileText, MapPin, AlertCircle, ExternalLink } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export const ValoracionSection: React.FC = () => {
@@ -28,6 +27,11 @@ export const ValoracionSection: React.FC = () => {
       description: "Nos pondremos en contacto contigo para proporcionarte el informe personalizado de tasación con 30 testigos.",
       duration: 5000
     });
+  };
+
+  const handleViewSampleReport = () => {
+    // Abrir el informe de ejemplo en nueva pestaña
+    window.open('/informe-tasacion-salamanca.html', '_blank');
   };
 
   return (
@@ -160,27 +164,58 @@ export const ValoracionSection: React.FC = () => {
         </Card>
       </div>
 
-      {/* Ejemplos de informes */}
+      {/* Ejemplo de valoración reciente */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
-          <CardTitle className="text-white">Ejemplos de Valoraciones Recientes</CardTitle>
+          <CardTitle className="text-white">Ejemplo de Valoración Reciente</CardTitle>
+          <p className="text-slate-400">Ve cómo es un informe completo de tasación</p>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-slate-700/30 rounded-lg">
-              <h4 className="text-white font-semibold">Calle Velázquez</h4>
-              <p className="text-slate-300 text-sm">3 hab, 120m² - Valoración: €890,000</p>
-              <p className="text-emerald-400 text-xs mt-1">30 testigos analizados</p>
+          <div 
+            className="p-6 bg-gradient-to-br from-slate-700/50 to-slate-600/30 rounded-lg border border-slate-600/50 hover:border-amber-400/50 transition-all duration-300 cursor-pointer group"
+            onClick={handleViewSampleReport}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <h4 className="text-white font-semibold text-lg group-hover:text-amber-400 transition-colors">
+                  Informe Premium - Calle Velázquez
+                </h4>
+                <p className="text-slate-300 text-sm mt-1">
+                  3 habitaciones, 120m² • Valoración: €1,160,760
+                </p>
+                <div className="flex items-center space-x-4 mt-3">
+                  <span className="text-emerald-400 text-xs font-medium">
+                    ✓ 32 testigos analizados
+                  </span>
+                  <span className="text-blue-400 text-xs font-medium">
+                    ✓ Análisis de riesgos
+                  </span>
+                  <span className="text-purple-400 text-xs font-medium">
+                    ✓ Benchmark internacional
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="text-right">
+                  <div className="text-amber-400 font-bold text-lg">€9,673/m²</div>
+                  <div className="text-slate-400 text-xs">91.5% certeza</div>
+                </div>
+                <ExternalLink className="h-5 w-5 text-amber-400 group-hover:scale-110 transition-transform" />
+              </div>
             </div>
-            <div className="p-4 bg-slate-700/30 rounded-lg">
-              <h4 className="text-white font-semibold">Calle Serrano</h4>
-              <p className="text-slate-300 text-sm">4 hab, 150m² - Valoración: €1,250,000</p>
-              <p className="text-emerald-400 text-xs mt-1">28 testigos analizados</p>
-            </div>
-            <div className="p-4 bg-slate-700/30 rounded-lg">
-              <h4 className="text-white font-semibold">Calle Goya</h4>
-              <p className="text-slate-300 text-sm">2 hab, 85m² - Valoración: €650,000</p>
-              <p className="text-emerald-400 text-xs mt-1">32 testigos analizados</p>
+            
+            <div className="mt-4 pt-4 border-t border-slate-600/50">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-400">Haz click para ver el informe completo</span>
+                <div className="flex items-center space-x-2">
+                  <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs font-medium">
+                    EJEMPLO REAL
+                  </span>
+                  <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded text-xs font-medium">
+                    PREMIUM
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

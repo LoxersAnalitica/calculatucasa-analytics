@@ -1,11 +1,11 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { StatsCard } from '@/components/ui/StatsCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DollarSign, Building, Target, Star, Eye, Clock, TrendingUp, TrendingDown, Home } from 'lucide-react';
 import { formatEuro, formatNumber } from '@/utils/formatters';
+import { getSheetData } from '@/lib/googleSheets';
 import { 
   ResponsiveContainer, 
   LineChart, 
@@ -27,18 +27,22 @@ import {
 interface BarrioData {
   nombre: string;
   precio_m2: number;
+  precio_medio: number;
   stock: number;
   leads: number;
   rating: number;
   poblacion_total: number;
   renta_familiar: number;
   edad_media: number;
-  viviendas_propias: number;
   esfuerzo_familiar: number;
   descuento_negociacion: number;
   stage: string;
   speed: string;
   risk: string;
+  visitas_por_anuncio?: number;
+  dias_plataforma?: number;
+  variacion_precio_base?: number;
+  variacion_precio_12m?: number;
 }
 
 interface BarrioDashboardProps {
@@ -47,35 +51,177 @@ interface BarrioDashboardProps {
 
 export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
   const [timeframe, setTimeframe] = useState<'1y' | '2y' | '5y' | 'all'>('2y');
-  
-  // Generar datos históricos para el barrio específico
-  const generateBarrioHistoricalData = () => {
-    const quarters = [];
-    const startYear = 2015;
-    const endYear = 2025;
-    const basePrice = barrio.precio_m2 * 0.85; // Precio base histórico
-    
-    for (let year = startYear; year <= endYear; year++) {
-      for (let q = 1; q <= 4; q++) {
-        if (year === 2025 && q > 1) break;
-        
-        const growth = Math.pow(1.018, (year - startYear) * 4 + q - 1);
-        const noise = (Math.random() - 0.5) * 150;
-        
-        quarters.push({
-          trimestre: `Q${q}-${year}`,
-          valor: Math.round(basePrice * growth + noise),
-          year,
-          quarter: q
-        });
-      }
-    }
-    return quarters;
-  };
+  const [historicoData, setHistoricoData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const allHistoricalData = useMemo(() => generateBarrioHistoricalData(), [barrio]);
+  // Cargar datos históricos reales
+  useEffect(() => {
+    const loadHistoricoData = async () => {
+      try {
+        setLoading(true);
+        const data = await getSheetData('Histórico');
+        
+        if (data && data.length > 0) {
+          const headers = Object.keys(data[0]);
+          const trimestres = headers.slice(2);
+          
+          // Buscar datos para este barrio específico
+          const priceRow = data.find(row => 
+            row['Barrio'] === barrio.nombre && 
+            row['Métrica'] === 'PRICE_ASKING'
+          );
+          const stockRow = data.find(row => 
+            row['Barrio'] === barrio.nombre && 
+            row['Métrica'] === 'STOCK_ASKING'
+          );
+          const demRow = data.find(row => 
+            row['Barrio'] === barrio.nombre && 
+            row['Métrica'] === 'DEM_ASKING'
+          );
+
+          console.log('🔍 BARRIO DASHBOARD - Datos encontrados:', {
+            price: !!priceRow,
+            stock: !!stockRow,
+            dem: !!demRow,
+            barrio: barrio.nombre
+          });
+
+          if (priceRow || stockRow || demRow) {
+            const precioEvolucion = [];
+            const stockEvolucion = [];
+            const diasEvolucion = [];
+
+            // Procesar datos históricos
+            trimestres.forEach(trimestre => {
+              if (!trimestre || trimestre.trim() === '') return;
+              
+              // PRICE_ASKING
+              if (priceRow && priceRow[trimestre]) {
+                const precio = parseInt(priceRow[trimestre]) || 0;
+                if (precio > 0) {
+                  precioEvolucion.push({
+                    trimestre: trimestre.trim(),
+                    valor: precio
+                  });
+                }
+              }
+              
+              // STOCK_ASKING  
+              if (stockRow && stockRow[trimestre]) {
+                const stock = parseInt(stockRow[trimestre]) || 0;
+                if (stock > 0) {
+                  stockEvolucion.push({
+                    trimestre: trimestre.trim(),
+                    stock: stock
+                  });
+                }
+              }
+              
+              // DEM_ASKING (días activos) - Solo hasta Q4-2024
+              if (demRow && demRow[trimestre] && !trimestre.includes('2025')) {
+                const dias = parseInt(demRow[trimestre]) || 0;
+                if (dias > 0) {
+                  diasEvolucion.push({
+                    trimestre: trimestre.trim(),
+                    dias: dias
+                  });
+                }
+              }
+            });
+
+            // Añadir Q1-2025 desde métricas (precio_medio del barrio)
+            if (barrio.precio_medio > 0) {
+              precioEvolucion.push({
+                trimestre: '2025-Q1',
+                valor: barrio.precio_medio
+              });
+            }
+
+            // Añadir Q1-2025 para stock (usar datos actuales del barrio)
+            if (barrio.stock > 0) {
+              stockEvolucion.push({
+                trimestre: '2025-Q1',
+                stock: barrio.stock
+              });
+            }
+
+            // Añadir Q1-2025 para días (usar dias_plataforma del barrio)
+            if (barrio.dias_plataforma && barrio.dias_plataforma > 0) {
+              diasEvolucion.push({
+                trimestre: '2025-Q1',
+                dias: barrio.dias_plataforma
+              });
+            }
+
+            console.log('🔍 BARRIO DASHBOARD - Evoluciones procesadas:', {
+              precios: precioEvolucion.length,
+              stock: stockEvolucion.length,
+              dias: diasEvolucion.length
+            });
+
+            setHistoricoData({
+              precioEvolucion,
+              stockEvolucion,
+              diasEvolucion
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading historico data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHistoricoData();
+  }, [barrio]);
+
+  // Calcular variaciones vs trimestre anterior (Q4-2024)
+  const calcularVariaciones = useMemo(() => {
+    if (!historicoData) return { precio: 0, stock: 0, dias: 0 };
+
+    // Buscar Q4-2024 y Q1-2025 para calcular variaciones
+    const precioQ4 = historicoData.precioEvolucion?.find(item => item.trimestre === '2024-Q4')?.valor || 0;
+    const precioQ1 = historicoData.precioEvolucion?.find(item => item.trimestre === '2025-Q1')?.valor || 0;
+    
+    const stockQ4 = historicoData.stockEvolucion?.find(item => item.trimestre === '2024-Q4')?.stock || 0;
+    const stockQ1 = historicoData.stockEvolucion?.find(item => item.trimestre === '2025-Q1')?.stock || 0;
+    
+    const diasQ4 = historicoData.diasEvolucion?.find(item => item.trimestre === '2024-Q4')?.dias || 0;
+    const diasQ1 = historicoData.diasEvolucion?.find(item => item.trimestre === '2025-Q1')?.dias || 0;
+
+    const precioVariacion = precioQ4 > 0 ? ((precioQ1 - precioQ4) / precioQ4) * 100 : 0;
+    const stockVariacion = stockQ4 > 0 ? ((stockQ1 - stockQ4) / stockQ4) * 100 : 0;
+    const diasVariacion = diasQ4 > 0 ? ((diasQ1 - diasQ4) / diasQ4) * 100 : 0;
+
+    return {
+      precio: Math.round(precioVariacion * 10) / 10,
+      stock: Math.round(stockVariacion * 10) / 10,
+      dias: Math.round(diasVariacion * 10) / 10
+    };
+  }, [historicoData]);
+
+  // Procesar datos para la gráfica de precios
+  const allHistoricalData = useMemo(() => {
+    if (!historicoData?.precioEvolucion) return [];
+    
+    return historicoData.precioEvolucion.map(item => {
+      const [year, quarter] = item.trimestre.includes('-Q') 
+        ? item.trimestre.split('-Q')
+        : item.trimestre.split('Q');
+      
+      return {
+        trimestre: item.trimestre,
+        valor: item.valor,
+        year: parseInt(year),
+        quarter: parseInt(quarter.replace('-', ''))
+      };
+    });
+  }, [historicoData]);
   
   const getFilteredData = () => {
+    if (!allHistoricalData.length) return [];
+    
     let startYear = 2015;
     let startQuarter = 1;
     
@@ -105,22 +251,17 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
 
   const filteredPriceData = getFilteredData();
   
-  // Datos mock para otros gráficos del barrio
-  const stockLeadsData = [
-    { trimestre: 'Q2-2023', stock: Math.round(barrio.stock * 1.15), leads: barrio.leads - 0.8 },
-    { trimestre: 'Q3-2023', stock: Math.round(barrio.stock * 1.12), leads: barrio.leads - 0.5 },
-    { trimestre: 'Q4-2023', stock: Math.round(barrio.stock * 1.08), leads: barrio.leads - 0.2 },
-    { trimestre: 'Q1-2024', stock: Math.round(barrio.stock * 1.05), leads: barrio.leads + 0.1 },
-    { trimestre: 'Q2-2024', stock: Math.round(barrio.stock * 1.02), leads: barrio.leads - 0.1 },
-    { trimestre: 'Q3-2024', stock: Math.round(barrio.stock * 0.98), leads: barrio.leads + 0.3 },
-    { trimestre: 'Q4-2024', stock: Math.round(barrio.stock * 1.01), leads: barrio.leads + 0.1 },
-    { trimestre: 'Q1-2025', stock: barrio.stock, leads: barrio.leads }
-  ];
+  // Datos para gráfico de stock (últimos 9 trimestres incluyendo Q1-2025)
+  const stockChartData = useMemo(() => {
+    if (!historicoData?.stockEvolucion) return [];
+    return historicoData.stockEvolucion.slice(-9);
+  }, [historicoData]);
 
-  const leadsHistorico = stockLeadsData.map(item => ({
-    trimestre: item.trimestre,
-    leads: item.leads
-  }));
+  // Datos para gráfico de días activos (últimos 9 trimestres incluyendo Q1-2025)
+  const diasChartData = useMemo(() => {
+    if (!historicoData?.diasEvolucion) return [];
+    return historicoData.diasEvolucion.slice(-9);
+  }, [historicoData]);
 
   const radarData = [
     { subject: 'Liquidez', A: barrio.rating * 1.1, fullMark: 10 },
@@ -130,10 +271,15 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
     { subject: 'Valor', A: barrio.precio_m2 / 1000, fullMark: 10 }
   ];
 
-  // Cálculos
-  const precio2007 = barrio.precio_m2 * 0.88;
-  const variacionVs2007 = ((barrio.precio_m2 - precio2007) / precio2007) * 100;
-  const variacion12m = 5.8 + (Math.random() * 4 - 2); // Variación mock
+  if (loading) {
+    return (
+      <div className="mt-6 p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/30 rounded-lg border border-slate-700">
+        <div className="flex items-center justify-center">
+          <span className="text-slate-300">Cargando datos históricos de {barrio.nombre}...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-6 space-y-6 p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/30 rounded-lg border border-slate-700">
@@ -150,15 +296,15 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
         <StatsCard
           title="Viviendas en Venta"
           value={formatNumber(barrio.stock)}
-          trend={-2.1}
+          trend={calcularVariaciones.stock}
           trendLabel="vs trimestre anterior"
           icon={<Building className="h-4 w-4" />}
           className="bg-slate-800/50 border-slate-700"
         />
         <StatsCard
           title="Precio Medio"
-          value={formatEuro(barrio.precio_m2 * 95)} // Precio medio estimado
-          trend={4.2}
+          value={formatEuro(barrio.precio_medio)}
+          trend={calcularVariaciones.precio}
           trendLabel="vs trimestre anterior"
           icon={<Home className="h-4 w-4" />}
           className="bg-slate-800/50 border-slate-700"
@@ -166,14 +312,14 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
         <StatsCard
           title="Precio €/m²"
           value={formatEuro(barrio.precio_m2)}
-          trend={3.8}
+          trend={calcularVariaciones.precio}
           trendLabel="vs trimestre anterior"
           icon={<DollarSign className="h-4 w-4" />}
           className="bg-slate-800/50 border-slate-700"
         />
         <StatsCard
-          title="Visitas/Anuncio"
-          value={formatNumber(Math.round(barrio.leads * 23))}
+          title="Visitas"
+          value={formatNumber(barrio.visitas_por_anuncio || 0)}
           trend={6.2}
           trendLabel="vs trimestre anterior"
           icon={<Eye className="h-4 w-4" />}
@@ -181,8 +327,8 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
         />
         <StatsCard
           title="Días en Plataforma"
-          value={Math.round(65 - barrio.rating * 3).toString()}
-          trend={-7.5}
+          value={(barrio.dias_plataforma || 0).toString()}
+          trend={calcularVariaciones.dias}
           trendLabel="vs trimestre anterior"
           icon={<Clock className="h-4 w-4" />}
           className="bg-slate-800/50 border-slate-700"
@@ -201,14 +347,14 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatsCard
           title="Variación vs 2007"
-          value={`${variacionVs2007 > 0 ? '+' : ''}${variacionVs2007.toFixed(1)}%`}
+          value={`${(barrio.variacion_precio_base || 0) > 0 ? '+' : ''}${(barrio.variacion_precio_base || 0).toFixed(1)}%`}
           description="comparado con precrisis"
-          icon={variacionVs2007 > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+          icon={(barrio.variacion_precio_base || 0) > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
           className="bg-slate-800/50 border-slate-700"
         />
         <StatsCard
           title="Variación 12 meses"
-          value={`+${variacion12m.toFixed(1)}%`}
+          value={`${(barrio.variacion_precio_12m || 0) > 0 ? '+' : ''}${(barrio.variacion_precio_12m || 0).toFixed(1)}%`}
           description="últimos 12 meses"
           icon={<TrendingUp className="h-4 w-4" />}
           className="bg-slate-800/50 border-slate-700"
@@ -222,16 +368,19 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
         />
       </div>
 
-      {/* Trading Chart con selector de tiempo */}
+      {/* Trading Chart con datos reales */}
       <Card className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-slate-700">
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-white flex items-center gap-2">
-                Evolución Precio €/m² - {barrio.nombre}
+                Evolución Precio - {barrio.nombre}
+                {historicoData?.precioEvolucion?.length > 0 && 
+                  <span className="text-xs bg-emerald-500 px-2 py-1 rounded">REAL</span>
+                }
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Análisis histórico del sub-barrio
+                Datos reales del Google Sheet
               </CardDescription>
             </div>
             <div className="flex gap-2">
@@ -270,7 +419,7 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
               <YAxis 
                 stroke="#9ca3af"
                 fontSize={12}
-                tickFormatter={(value) => `${value/1000}k`}
+                tickFormatter={(value) => `${(value/1000).toFixed(0)}k`}
               />
               <Tooltip 
                 contentStyle={{
@@ -279,7 +428,7 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
                   borderRadius: '8px',
                   color: '#f9fafb'
                 }}
-                formatter={(value) => [`${formatEuro(value as number)}`, `Precio €/m² ${barrio.nombre}`]}
+                formatter={(value) => [`${formatEuro(value as number)}`, `Precio ${barrio.nombre}`]}
               />
               <Line
                 type="monotone"
@@ -297,19 +446,23 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Stock vs Leads Chart */}
+        {/* Stock Chart */}
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
-            <CardTitle className="text-white">Stock vs Leads - {barrio.nombre}</CardTitle>
-            <CardDescription className="text-slate-400">Últimos 8 trimestres</CardDescription>
+            <CardTitle className="text-white">
+              Stock Viviendas - {barrio.nombre}
+              {stockChartData.length > 0 && 
+                <span className="text-xs bg-emerald-500 px-2 py-1 rounded ml-2">REAL</span>
+              }
+            </CardTitle>
+            <CardDescription className="text-slate-400">Últimos 9 trimestres (incluye Q1-2025)</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stockLeadsData}>
+              <BarChart data={stockChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="trimestre" stroke="#9ca3af" />
-                <YAxis yAxisId="left" stroke="#9ca3af" />
-                <YAxis yAxisId="right" orientation="right" stroke="#9ca3af" />
+                <YAxis stroke="#9ca3af" />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#1f2937',
@@ -318,23 +471,26 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
                     color: '#f9fafb'
                   }}
                 />
-                <Legend />
-                <Bar yAxisId="left" dataKey="stock" fill="#06b6d4" name="Stock Viviendas" />
-                <Bar yAxisId="right" dataKey="leads" fill="#8b5cf6" name="Leads/Anuncio" />
+                <Bar dataKey="stock" fill="#06b6d4" name="Stock Viviendas" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Histórico de Leads */}
+        {/* Días Activos Chart */}
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
-            <CardTitle className="text-white">Histórico Leads - {barrio.nombre}</CardTitle>
-            <CardDescription className="text-slate-400">Evolución últimos 8 trimestres</CardDescription>
+            <CardTitle className="text-white">
+              Días en Plataforma - {barrio.nombre}
+              {diasChartData.length > 0 && 
+                <span className="text-xs bg-emerald-500 px-2 py-1 rounded ml-2">REAL</span>
+              }
+            </CardTitle>
+            <CardDescription className="text-slate-400">Últimos 9 trimestres (incluye Q1-2025)</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={leadsHistorico}>
+              <LineChart data={diasChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="trimestre" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
@@ -348,7 +504,7 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
                 />
                 <Line
                   type="monotone"
-                  dataKey="leads"
+                  dataKey="dias"
                   stroke="#f59e0b"
                   strokeWidth={3}
                   dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
@@ -397,10 +553,6 @@ export const BarrioDashboard: React.FC<BarrioDashboardProps> = ({ barrio }) => {
               <div className="flex justify-between">
                 <span>Edad Media</span>
                 <span className="font-semibold">{barrio.edad_media} años</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Vivienda Propia</span>
-                <span className="font-semibold">{barrio.viviendas_propias}%</span>
               </div>
             </div>
           </CardContent>

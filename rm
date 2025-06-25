@@ -20,14 +20,10 @@ export const SociodemografiaSection: React.FC = () => {
         console.log('📊 SOCIODEMOGRAFIA - DATOS RECIBIDOS:', data);
         
         if (data && data.length > 0) {
-          console.log('📊 TODAS LAS FILAS:', data);
-          console.log('📊 NÚMERO TOTAL DE FILAS:', data.length);
-          
-          // Buscar la fila agregada (última fila que contiene los totales)
+          // Usar la última fila que contiene los datos agregados
           const agregadoRow = data[data.length - 1];
           
-          console.log('📊 FILA SELECCIONADA:', agregadoRow);
-          console.log('📊 POBLACION TOTAL EN FILA:', agregadoRow.poblacion_total);
+          console.log('📊 SOCIODEMOGRAFIA - FILA AGREGADA:', agregadoRow);
           console.log('📊 SOCIODEMOGRAFIA - COLUMNAS:', Object.keys(agregadoRow));
           
           const socioData = {
@@ -38,10 +34,10 @@ export const SociodemografiaSection: React.FC = () => {
             poblacion_femenina: parseInt(agregadoRow.poblacion_femenina) || 0,
             renta_familiar: parseInt(agregadoRow.renta_familiar) || 0,
             edad_media: parseFloat(agregadoRow.edad_media) || 0,
-            estudios_superiores: (parseFloat(agregadoRow.estudios_superiores) || 0) * 100,
-            casados: (parseFloat(agregadoRow.casados) || 0) * 100,
-            hogares_unipersonales: parseInt(agregadoRow.hogares_unipersonales) || 0,
-            viviendas_alquiler: (parseFloat(agregadoRow.viviendas_alquiler) || 0) * 100
+            estudios_superiores: parseFloat(agregadoRow.estudios_superiores) || 0,
+            casados: parseFloat(agregadoRow.casados) || 0,
+            hogares_unipersonales: parseFloat(agregadoRow.hogares_unipersonales) || 0,
+            viviendas_alquiler: parseFloat(agregadoRow.viviendas_alquiler) || 0
           };
 
           console.log('📊 SOCIODEMOGRAFIA - DATOS PROCESADOS:', socioData);
@@ -139,8 +135,8 @@ export const SociodemografiaSection: React.FC = () => {
         />
         <StatsCard
           title="Hogares Unipersonales"
-          value={formatNumber(baseData.hogares_unipersonales)}
-          description="hogares"
+          value={`${baseData.hogares_unipersonales}%`}
+          description="del total"
           icon={<Home className="h-4 w-4" />}
           className="bg-slate-800/50 border-slate-700"
         />
@@ -214,13 +210,13 @@ export const SociodemografiaSection: React.FC = () => {
         </Card>
       </div>
 
-      {/* Detalles adicionales - SIN SECCIÓN DE VIVIENDA */}
+      {/* Detalles adicionales */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white">Detalles Sociodemográficos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-slate-300">
             <div className="space-y-2">
               <h4 className="font-semibold text-white">Composición Familiar</h4>
               <div className="space-y-1">
@@ -230,7 +226,20 @@ export const SociodemografiaSection: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Hogares unipersonales</span>
-                  <span className="font-semibold">{formatNumber(baseData.hogares_unipersonales)} hogares</span>
+                  <span className="font-semibold">{baseData.hogares_unipersonales}%</span>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold text-white">Vivienda</h4>
+              <div className="space-y-1">
+                <div className="flex justify-between">
+                  <span>Vivienda alquiler</span>
+                  <span className="font-semibold">{baseData.viviendas_alquiler}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Vivienda propia</span>
+                  <span className="font-semibold">{(100 - baseData.viviendas_alquiler).toFixed(1)}%</span>
                 </div>
               </div>
             </div>

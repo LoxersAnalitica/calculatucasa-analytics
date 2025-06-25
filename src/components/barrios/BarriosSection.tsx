@@ -1,66 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, Loader2 } from 'lucide-react';
 import { BarrioDashboard } from '@/components/barrios/BarrioDashboard';
 import { formatEuro, formatNumber } from '@/utils/formatters';
-import { getBarriosData } from '@/lib/googleSheets';
+import { getSheetData } from '@/lib/googleSheets';
 
 export const BarriosSection: React.FC = () => {
   const [selectedBarrio, setSelectedBarrio] = useState('');
-  const [barriosData, setBarriosData] = useState([]);
+  const [barrios, setBarrios] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Cargar datos reales de Google Sheets
   useEffect(() => {
-    const loadBarriosData = async () => {
+    const loadBarrios = async () => {
       try {
         setLoading(true);
-        const data = await getBarriosData();
+        const data = await getSheetData('Métricas');
+        
+        console.log('📊 DATOS RECIBIDOS:', data);
+        console.log('📊 PRIMERA FILA:', data[0]);
+        console.log('📊 COLUMNAS:', Object.keys(data[0] || {}));
+        
         if (data && data.length > 0) {
-          setBarriosData(data);
+const barriosData = data.map(row => ({
+  nombre: row.barrio || '',
+  precio_m2: parseInt(row.precio_m2) || 0,
+  precio_medio: parseInt(row.precio_medio) || 0,
+  stock: parseInt(row.viviendas_en_venta) || 0,
+  leads: parseFloat(row.leads_por_anuncio) || 0,
+  rating: parseFloat(row.rating) || 0,
+  poblacion_total: parseInt(row.poblacion_total) || 0,
+  renta_familiar: parseInt(row.renta_familiar) || 0,
+  edad_media: parseFloat(row.edad_media) || 0,
+  esfuerzo_familiar: parseFloat(row.esfuerzo_familiar) || 0,
+  descuento_negociacion: parseFloat(row.descuento_negociacion) || 0,
+  stage: row.stage || 'N/A',
+  speed: row.speed || 'N/A',
+  risk: row.risk || 'N/A',
+  visitas_por_anuncio: parseInt(row.visitas_por_anuncio) || 0,
+  dias_plataforma: parseInt(row.dias_plataforma) || 0,
+  variacion_precio_base: parseFloat(row.variacion_precio_base) || 0,
+  variacion_precio_12m: parseFloat(row.variacion_precio_12m) || 0
+})).filter(barrio => barrio.nombre);          
+          console.log('📊 BARRIOS PROCESADOS:', barriosData);
+          setBarrios(barriosData);
         }
       } catch (error) {
-        console.error('Error loading barrios data:', error);
+        console.error('Error loading barrios:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadBarriosData();
+    loadBarrios();
   }, []);
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <MapPin className="h-5 w-5 text-emerald-400 mr-2" />
-              Cargando datos de barrios...
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-10 bg-slate-700 rounded animate-pulse"></div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+        <span className="ml-2 text-slate-300">Cargando datos de barrios...</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {barriosData.length > 0 && (
-        <div className="bg-emerald-900/20 border border-emerald-700/50 rounded-lg p-3">
-          <p className="text-emerald-400 text-sm text-center">
-            ✅ Datos de barrios actualizados desde Google Sheets - {barriosData.length} barrios disponibles
-          </p>
-        </div>
-      )}
-
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center">
@@ -69,8 +75,8 @@ export const BarriosSection: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {barriosData.map((barrio, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {barrios.map((barrio, index) => (
               <Button
                 key={index}
                 variant={selectedBarrio === barrio.nombre ? "default" : "outline"}
@@ -105,7 +111,7 @@ export const BarriosSection: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {barriosData.map((barrio, index) => (
+                {barrios.map((barrio, index) => (
                   <tr 
                     key={index}
                     className={`border-b border-slate-700 hover:bg-slate-700/30 cursor-pointer ${
@@ -120,7 +126,7 @@ export const BarriosSection: React.FC = () => {
                     <td className="p-2 text-right text-slate-300">
                       <div className="flex items-center justify-end">
                         <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                        {barrio.rating ? barrio.rating.toFixed(1) : '0.0'}
+                        {barrio.rating}
                       </div>
                     </td>
                     <td className="p-2 text-center">
@@ -139,7 +145,7 @@ export const BarriosSection: React.FC = () => {
       </Card>
 
       {selectedBarrio && (
-        <BarrioDashboard barrio={barriosData.find(b => b.nombre === selectedBarrio)!} />
+        <BarrioDashboard barrio={barrios.find(b => b.nombre === selectedBarrio)!} />
       )}
     </div>
   );
