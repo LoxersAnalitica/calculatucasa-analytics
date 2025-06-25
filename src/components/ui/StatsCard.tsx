@@ -1,73 +1,87 @@
-
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatsCardProps {
   title: string;
   value: string | number;
-  description?: string;
-  icon?: React.ReactNode;
   trend?: number;
   trendLabel?: string;
+  description?: string;
+  icon?: React.ReactNode;
   className?: string;
-  valueClassName?: string;
-  onClick?: () => void;
 }
 
-export function StatsCard({
+export const StatsCard: React.FC<StatsCardProps> = ({
   title,
   value,
-  description,
-  icon,
   trend,
   trendLabel,
-  className,
-  valueClassName,
-  onClick,
-}: StatsCardProps) {
-  const formattedTrend = trend !== undefined ? (trend > 0 ? `+${trend.toFixed(2)}%` : `${trend.toFixed(2)}%`) : null;
-  const isTrendPositive = trend !== undefined ? trend > 0 : null;
-  
+  description,
+  icon,
+  className
+}) => {
+  const getTrendColor = (trend: number) => {
+    if (trend > 0) return 'text-green-400';
+    if (trend < 0) return 'text-red-400';
+    return 'text-slate-400';
+  };
+
+  const getTrendIcon = (trend: number) => {
+    if (trend > 0) return <TrendingUp className="h-3 w-3" />;
+    if (trend < 0) return <TrendingDown className="h-3 w-3" />;
+    return null;
+  };
+
   return (
-    <Card 
-      className={cn(
-        "transition-all duration-300 hover:shadow-md overflow-hidden",
-        onClick ? "cursor-pointer" : "",
-        className
-      )}
-      onClick={onClick}
-    >
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {icon && <div className="h-4 w-4 text-muted-foreground">{icon}</div>}
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold tracking-tight truncate" style={{ lineHeight: '1.5' }}>
-          <span className={valueClassName}>{value}</span>
+    <Card className={cn(
+      "transition-all duration-200 hover:shadow-lg hover:scale-[1.02] border-slate-700 bg-slate-800/50",
+      className
+    )}>
+      <CardContent className="p-4 md:p-6">
+        {/* Header con título e icono */}
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-xs md:text-sm font-medium text-slate-400 uppercase tracking-wide">
+            {title}
+          </h3>
+          {icon && (
+            <div className="text-amber-400 opacity-80">
+              {icon}
+            </div>
+          )}
         </div>
-        
-        {(description || trend !== undefined) && (
-          <div className="flex items-center text-xs mt-1">
-            {trend !== undefined && (
-              <span className={cn(
-                "inline-flex items-center mr-1",
-                isTrendPositive ? "text-success" : "text-danger"
-              )}>
-                {isTrendPositive ? <ArrowUpIcon className="h-3 w-3 mr-1" /> : <ArrowDownIcon className="h-3 w-3 mr-1" />}
-                {formattedTrend}
+
+        {/* Valor principal */}
+        <div className="mb-2">
+          <p className="text-xl md:text-2xl lg:text-3xl font-bold text-white truncate">
+            {value}
+          </p>
+        </div>
+
+        {/* Trend y descripción */}
+        <div className="space-y-1">
+          {trend !== undefined && (
+            <div className="flex items-center space-x-1">
+              {getTrendIcon(trend)}
+              <span className={cn("text-xs md:text-sm font-semibold", getTrendColor(trend))}>
+                {trend > 0 ? '+' : ''}{trend}%
               </span>
-            )}
-            {trendLabel && <span className="text-muted-foreground ml-1">{trendLabel}</span>}
-            {description && (
-              <p className={cn("text-muted-foreground", trend !== undefined ? "ml-2" : "")}>
-                {description}
-              </p>
-            )}
-          </div>
-        )}
+              {trendLabel && (
+                <span className="text-xs text-slate-500 truncate">
+                  {trendLabel}
+                </span>
+              )}
+            </div>
+          )}
+          
+          {description && (
+            <p className="text-xs text-slate-400 truncate">
+              {description}
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
-}
+};

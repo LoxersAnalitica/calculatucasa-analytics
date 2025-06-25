@@ -63,10 +63,8 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ baseData: fall
         const historicoData = await getHistoricoData();
         
         if (overviewMetrics) {
-          console.log('✅ Raw overview data from Google Sheets:', overviewMetrics);
-          console.log('🔍 DEBUG Precio M2:', overviewMetrics.precioM2);
-          console.log('🔍 DEBUG Variación 2007:', overviewMetrics.variacion2007);
           setRealData(overviewMetrics);
+          console.log('✅ Real overview data loaded:', overviewMetrics);
         }
         
         if (historicoData) {
@@ -212,8 +210,10 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ baseData: fall
   console.log('🔍 DEBUG: filteredPriceData length:', filteredPriceData.length);
   console.log('🔍 DEBUG: filteredPriceData first 3:', filteredPriceData.slice(0, 3));
   
-  // Cálculo de variación vs 2007 - usar datos directos del sheet
-  const variacionVs2007 = realData ? realData.variacion2007 : (fallbackData.variacion_precio_base * 100);
+  // Cálculo de variación vs 2007 (precrisis) - con datos reales
+  const precio2007 = 6800; // Precio estimado en 2007
+  const precioActual = realData ? realData.precioM2 : baseData.precio_m2;
+  const variacionVs2007 = ((precioActual - precio2007) / precio2007) * 100;
 
   // Datos para Stock vs Leads - con datos reales (corregido para usar media)
   const stockLeadsData = historicoReal && historicoReal.stockTotal && historicoReal.stockTotal.length > 0 ? 
@@ -281,8 +281,8 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ baseData: fall
     <div className="space-y-6">
       {/* Indicador de datos reales */}
       {realData && (
-        <div className="bg-emerald-900/20 border border-emerald-700/50 rounded-lg p-3">
-          <p className="text-emerald-400 text-sm text-center">
+        <div className="bg-emerald-900/20 border border-emerald-700/50 rounded-lg p-2 md:p-3">
+          <p className="text-emerald-400 text-xs md:text-sm text-center">
             ✅ Datos actualizados desde Google Sheets - Última actualización: {new Date().toLocaleDateString()}
           </p>
         </div>
@@ -308,7 +308,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ baseData: fall
         />
         <StatsCard
           title="Precio €/m²"
-          value={realData && realData.precioM2 ? formatEuro(realData.precioM2) : formatEuro(baseData.precio_m2 || 10681)}
+          value={formatEuro(realData ? realData.precioM2 : baseData.precio_m2)}
           trend={parseFloat(priceTrend.value)}
           trendLabel="vs trimestre anterior"
           icon={<DollarSign className="h-4 w-4" />}
@@ -371,8 +371,8 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ baseData: fall
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-white flex items-center gap-2">
-                Evolución Precio Medio - Trading View
-                {realData && <span className="text-xs bg-emerald-500 px-2 py-1 rounded">DATOS REALES</span>}
+                <span className="text-sm md:text-base">Evolución Precio Medio - Trading View</span>
+                {realData && <span className="text-[10px] md:text-xs bg-emerald-500/80 px-1.5 py-0.5 rounded text-black font-medium">REAL</span>}
               </CardTitle>
               <CardDescription className="text-slate-400">
                 Análisis técnico - Salamanca District ({allHistoricalData.length} trimestres)
@@ -444,9 +444,9 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ baseData: fall
         {/* Stock vs Leads Chart */}
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
-            <CardTitle className="text-white">
-              Stock vs Días Activos
-              {historicoReal && <span className="text-xs bg-emerald-500 px-2 py-1 rounded ml-2">REAL</span>}
+            <CardTitle className="text-white flex items-center gap-2">
+              <span className="text-sm md:text-base">Stock vs Días Activos</span>
+              {historicoReal && <span className="text-[10px] md:text-xs bg-emerald-500/80 px-1.5 py-0.5 rounded text-black font-medium">REAL</span>}
             </CardTitle>
             <CardDescription className="text-slate-400">Últimos 8 trimestres</CardDescription>
           </CardHeader>
@@ -476,9 +476,9 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ baseData: fall
         {/* Histórico de Leads */}
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
-            <CardTitle className="text-white">
-              Histórico Días Activos
-              {historicoReal && <span className="text-xs bg-emerald-500 px-2 py-1 rounded ml-2">REAL</span>}
+            <CardTitle className="text-white flex items-center gap-2">
+              <span className="text-sm md:text-base">Histórico Días Activos</span>
+              {historicoReal && <span className="text-[10px] md:text-xs bg-emerald-500/80 px-1.5 py-0.5 rounded text-black font-medium">REAL</span>}
             </CardTitle>
             <CardDescription className="text-slate-400">Evolución últimos trimestres</CardDescription>
           </CardHeader>
