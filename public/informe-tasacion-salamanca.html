@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Tasación - Distrito Salamanca</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #f8f8f8;
+            background: #0f1419;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .background-animation {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom right, #1e293b, #0f1419);
+            z-index: -1;
+        }
+
+        .background-animation::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.05), rgba(251, 146, 60, 0.1), rgba(245, 158, 11, 0.05));
+            animation: pulse-gentle 4s ease-in-out infinite;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(48px);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            top: 0;
+            left: 25%;
+            width: 384px;
+            height: 384px;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .orb-2 {
+            bottom: 0;
+            right: 25%;
+            width: 320px;
+            height: 320px;
+            background: rgba(251, 146, 60, 0.1);
+            animation-delay: 1s;
+        }
+
+        @keyframes pulse-gentle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+            position: relative;
+        }
+        
+        .calculatucasa-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #f59e0b, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(to right, #f59e0b, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header .subtitle {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            font-weight: 300;
+        }
+        
+        .header .date {
+            margin-top: 20px;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        /* Sections */
+        .section {
+            margin-bottom: 80px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #ffffff;
+        }
+        
+        /* Key Metrics */
+        .key-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 32px 20px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #f59e0b, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Executive Summary */
+        .executive-summary {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 40px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            margin: 40px 0;
+        }
+        
+        .executive-summary h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f59e0b;
+        }
+        
+        .executive-summary p {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: #e2e8f0;
+        }
+        
+        /* Grid Cards */
+        .grid {
+            display: grid;
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .card {
+            padding: 30px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        
+        .card-header {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f59e0b;
+        }
+        
+        /* Tables */
+        .elegant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 40px 0;
+            font-size: 0.95rem;
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .elegant-table th,
+        .elegant-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        .elegant-table th {
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            background: rgba(30, 41, 59, 0.5);
+        }
+        
+        .elegant-table td {
+            color: #e2e8f0;
+        }
+        
+        .elegant-table tr:hover {
+            background: rgba(30, 41, 59, 0.4);
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: 4px;
+        }
+        
+        .badge-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+        
+        .badge-premium {
+            background: #f59e0b;
+            color: #000;
+        }
+        
+        /* Charts */
+        .chart-container {
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .chart-title {
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Smaller chart canvases */
+        .chart-small {
+            max-width: 150px;
+            max-height: 150px;
+            margin: 0 auto;
+        }
+        
+        .chart-medium {
+            max-height: 200px;
+        }
+        
+        /* Risk Matrix */
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .risk-box {
+            padding: 30px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .risk-box.positive {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .risk-box.negative {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .risk-box h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f8f8f8;
+        }
+        
+        .risk-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .risk-box li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            color: #e2e8f0;
+        }
+        
+        .risk-box li:last-child {
+            border-bottom: none;
+        }
+        
+        /* Signature Section */
+        .signature-section {
+            margin-top: 100px;
+            padding-top: 60px;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 60px;
+            margin: 40px 0;
+        }
+        
+        .signature-box {
+            text-align: center;
+            color: #e2e8f0;
+        }
+        
+        .signature-line {
+            margin: 60px auto 20px;
+            width: 200px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+        
+        .footer .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #f59e0b, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .key-metrics,
+            .grid-2,
+            .grid-3,
+            .risk-matrix,
+            .signature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 40px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        /* Print */
+        @media print {
+            body {
+                font-size: 11px;
+                background: white;
+                color: black;
+            }
+            
+            .background-animation,
+            .floating-orb {
+                display: none;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .card:hover {
+                box-shadow: none;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="calculatucasa-logo">CalculaTuCasa</div>
+            <h1>Informe de Tasación Premium</h1>
+            <p class="subtitle">Distrito Salamanca · Madrid</p>
+            <p class="date">24 de Junio de 2025 | Ref: SAL-2025-001</p>
+        </header>
+
+        <section class="section">
+            <h2 class="section-title">Resumen Ejecutivo</h2>
+            
+            <div class="executive-summary">
+                <h3>Conclusión Principal</h3>
+                <p>
+                    El análisis exhaustivo de 32 testigos comparables confirma que el Distrito Salamanca 
+                    mantiene su posición como el mercado residencial más exclusivo de Madrid, con una 
+                    valoración media de <strong>7.200 €/m²</strong> y una tendencia alcista sostenida del 
+                    <strong>+6.4%</strong> anual.
+                </p>
+            </div>
+
+            <div class="key-metrics">
+                <div class="metric-card">
+                    <div class="metric-value">7.200€</div>
+                    <div class="metric-label">Precio €/m²</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">+6.4%</div>
+                    <div class="metric-label">Crecimiento Anual</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">9.2</div>
+                    <div class="metric-label">Leads/Anuncio</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">28</div>
+                    <div class="metric-label">Días en Mercado</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Análisis de Mercado</h2>
+            
+            <div class="grid grid-3">
+                <div class="card">
+                    <h3 class="card-header">Stage: Máximos</h3>
+                    <canvas id="stageChart" class="chart-small" width="150" height="150"></canvas>
+                    <p style="margin-top: 20px; color: #e2e8f0;">Mercado en fase de máximos históricos. Momento óptimo para vendedores.</p>
+                    <div style="margin-top: 15px;">
+                        <span class="badge badge-premium">Vender</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-header">Speed: Alta</h3>
+                    <canvas id="speedChart" class="chart-small" width="150" height="150"></canvas>
+                    <p style="margin-top: 20px; color: #e2e8f0;">Rotación excepcional con 28 días promedio. Absorción del 3.2% mensual.</p>
+                    <div style="margin-top: 15px;">
+                        <span class="badge badge-success">Mercado Ágil</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-header">Risk: Moderado</h3>
+                    <canvas id="riskChart" class="chart-small" width="150" height="150"></canvas>
+                    <p style="margin-top: 20px; color: #e2e8f0;">Volatilidad controlada con fundamentos sólidos del distrito premium.</p>
+                    <div style="margin-top: 15px;">
+                        <span class="badge badge-warning">Riesgo Bajo</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1.3rem; margin: 60px 0 30px; font-weight: 600; color: #f8f8f8;">Indicadores de Rendimiento</h3>
+            
+            <table class="elegant-table">
+                <thead>
+                    <tr>
+                        <th>Métrica</th>
+                        <th>Valor Actual</th>
+                        <th>Tendencia 12M</th>
+                        <th>Benchmark Madrid</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Precio Medio</td>
+                        <td><strong>1.425.000€</strong></td>
+                        <td>+3.1%</td>
+                        <td>+1.8%</td>
+                        <td><span class="badge badge-success">Superior</span></td>
+                    </tr>
+                    <tr>
+                        <td>Stock Disponible</td>
+                        <td><strong>1.167</strong> unidades</td>
+                        <td>-0.7%</td>
+                        <td>+2.3%</td>
+                        <td><span class="badge badge-success">Escasez</span></td>
+                    </tr>
+                    <tr>
+                        <td>Tiempo de Venta</td>
+                        <td><strong>28</strong> días</td>
+                        <td>-8.7%</td>
+                        <td>45 días</td>
+                        <td><span class="badge badge-success">Excelente</span></td>
+                    </tr>
+                    <tr>
+                        <td>Visitas/Anuncio</td>
+                        <td><strong>127</strong> visitas</td>
+                        <td>+5.8%</td>
+                        <td>89 visitas</td>
+                        <td><span class="badge badge-premium">Premium</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Análisis Comparativo</h2>
+            
+            <div class="chart-container">
+                <h3 class="chart-title">Distribución de Precios por Zona Premium</h3>
+                <canvas id="priceDistribution" class="chart-medium" height="200"></canvas>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 40px;">
+                <div class="card">
+                    <h3 class="card-header">Estadísticas de Precio</h3>
+                    <div style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2);">
+                            <span style="color: #94a3b8;">Rango de precios</span>
+                            <strong style="color: #f8f8f8;">450.000€ - 2.150.000€</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2);">
+                            <span style="color: #94a3b8;">Precio promedio</span>
+                            <strong style="color: #f8f8f8;">1.156.000€</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2);">
+                            <span style="color: #94a3b8;">Mediana</span>
+                            <strong style="color: #f8f8f8;">995.000€</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 15px 0;">
+                            <span style="color: #94a3b8;">Desviación estándar</span>
+                            <strong style="color: #f8f8f8;">±387.000€</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-header">Estadísticas €/m²</h3>
+                    <div style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2);">
+                            <span style="color: #94a3b8;">Rango €/m²</span>
+                            <strong style="color: #f8f8f8;">4.580€ - 11.250€</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2);">
+                            <span style="color: #94a3b8;">€/m² promedio</span>
+                            <strong style="color: #f8f8f8;">7.180€</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2);">
+                            <span style="color: #94a3b8;">Percentil 75</span>
+                            <strong style="color: #f8f8f8;">8.450€/m²</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 15px 0;">
+                            <span style="color: #94a3b8;">Percentil 25</span>
+                            <strong style="color: #f8f8f8;">6.200€/m²</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Valoración del Inmueble</h2>
+            
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="card-header">Características Físicas</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Superficie:</strong> 120 m² útiles
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Habitaciones:</strong> 3 dormitorios
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Baños:</strong> 2 completos
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Planta:</strong> 4ª exterior
+                        </li>
+                        <li style="padding: 10px 0; color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Estado:</strong> Buen estado
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-header">Ubicación y Servicios</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Zona:</strong> Calle Velázquez (Prime A)
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Orientación:</strong> Sur-Oeste
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Parking:</strong> Plaza incluida
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Trastero:</strong> 8 m²
+                        </li>
+                        <li style="padding: 10px 0; color: #e2e8f0;">
+                            <strong style="color: #f59e0b;">Servicios:</strong> Portero físico
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chart-container" style="margin-top: 40px;">
+                <h3 class="chart-title">Desglose de Valoración</h3>
+                <canvas id="valuationBreakdown" class="chart-medium" height="200"></canvas>
+            </div>
+
+            <div class="key-metrics" style="margin-top: 40px;">
+                <div class="metric-card">
+                    <div class="metric-value">1.160.760€</div>
+                    <div class="metric-label">Valor de Tasación</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">9.673€</div>
+                    <div class="metric-label">Precio por m²</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">±8.5%</div>
+                    <div class="metric-label">Margen Confianza</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">91.5%</div>
+                    <div class="metric-label">Nivel Certeza</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Análisis de Riesgos</h2>
+            
+            <div class="risk-matrix">
+                <div class="risk-box positive">
+                    <h4>✓ Fortalezas del Activo</h4>
+                    <ul>
+                        <li><strong>Ubicación Premium:</strong> Calle Velázquez, zona Prime A</li>
+                        <li><strong>Liquidez:</strong> 28 días tiempo medio de venta</li>
+                        <li><strong>Demanda:</strong> 9.2 leads por anuncio</li>
+                        <li><strong>Apreciación:</strong> +6.4% último año</li>
+                        <li><strong>Perfil Comprador:</strong> Internacional alto poder</li>
+                    </ul>
+                </div>
+                
+                <div class="risk-box negative">
+                    <h4>⚠ Factores de Riesgo</h4>
+                    <ul>
+                        <li><strong>Ciclo:</strong> Fase de máximos, corrección 10-15%</li>
+                        <li><strong>Tipos Interés:</strong> Sensibilidad a subidas</li>
+                        <li><strong>Regulación:</strong> Posibles limitaciones alquiler</li>
+                        <li><strong>Dependencia:</strong> 35% demanda internacional</li>
+                        <li><strong>Obsolescencia:</strong> Edificios pre-1980</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chart-container" style="margin-top: 40px;">
+                <h3 class="chart-title">Matriz de Escenarios</h3>
+                <canvas id="scenarioMatrix" class="chart-medium" height="200"></canvas>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Recomendaciones Estratégicas</h2>
+            
+            <div class="executive-summary">
+                <h3>Estrategia Principal: Venta Selectiva</h3>
+                <p>
+                    Aprovechamiento del ciclo de máximos para monetización de activos con 
+                    estrategia de precio defensivo. Ventana óptima: Q2-Q3 2025.
+                </p>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 40px;">
+                <div class="card">
+                    <h3 class="card-header">Para Vendedores</h3>
+                    <div style="margin-top: 20px;">
+                        <p style="color: #e2e8f0;"><strong style="color: #f59e0b;">Precio de Salida:</strong> 1.190.000€ (+2-3% s/tasación)</p>
+                        <p style="color: #e2e8f0;"><strong style="color: #f59e0b;">Margen Negociación:</strong> Máximo 3-4%</p>
+                        <p style="color: #e2e8f0;"><strong style="color: #f59e0b;">Plazo:</strong> Exclusiva 60 días</p>
+                        <p style="color: #e2e8f0;"><strong style="color: #f59e0b;">Timing:</strong> Lanzamiento inmediato</p>
+                        <div style="margin-top: 20px;">
+                            <span class="badge badge-premium">Acción Inmediata</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-header">Para Compradores</h3>
+                    <div style="margin-top: 20px;">
+                        <p style="color: #e2e8f0;"><strong style="color: #f59e0b;">Precio Objetivo:</strong> 1.070.000€-1.100.000€</p>
+                        <p style="color: #e2e8f0;"><strong style="color: #f59e0b;">Estrategia:</strong> Negociación agresiva</p>
+                        <p style="color: #e2e8f0;"><strong style="color: #f59e0b;">Criterios:</strong> Ubicación sobre estado</p>
+                        <p style="color: #e2e8f0;"><strong style="color: #f59e0b;">Financiación:</strong> Tipos fijos pre-aprobados</p>
+                        <div style="margin-top: 20px;">
+                            <span class="badge badge-warning">Oportunidad Selectiva</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Benchmark Internacional</h2>
+            
+            <div class="chart-container">
+                <h3 class="chart-title">Comparativa Distritos Premium Europeos</h3>
+                <canvas id="internationalBenchmark" class="chart-medium" height="200"></canvas>
+            </div>
+
+            <div class="executive-summary" style="margin-top: 40px;">
+                <h3>Conclusión Benchmarking</h3>
+                <p>
+                    El Distrito Salamanca presenta un <strong>descuento del 15-25%</strong> respecto 
+                    a distritos comparables de París y Londres, con superior liquidez y fundamentales 
+                    sólidos. Potencial de convergencia a medio plazo.
+                </p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Conclusiones</h2>
+            
+            <div class="card" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(148, 163, 184, 0.2); padding: 40px;">
+                <ol style="line-height: 2; font-size: 1.05rem; color: #e2e8f0; padding-left: 20px;">
+                    <li style="margin-bottom: 15px;">
+                        <strong style="color: #f59e0b;">Valoración:</strong> El inmueble tipo presenta un valor de mercado de 
+                        1.160.760€ (9.673€/m²), con margen de confianza del 91.5%.
+                    </li>
+                    <li style="margin-bottom: 15px;">
+                        <strong style="color: #f59e0b;">Contexto:</strong> Distrito en máximos con fundamentos sólidos, 
+                        liquidez excepcional y demanda internacional.
+                    </li>
+                    <li style="margin-bottom: 15px;">
+                        <strong style="color: #f59e0b;">Recomendación:</strong> Momento óptimo para monetización selectiva 
+                        con estrategia de precio defensivo.
+                    </li>
+                    <li style="margin-bottom: 15px;">
+                        <strong style="color: #f59e0b;">Perspectiva:</strong> Mantenimiento de prima de ubicación con potencial 
+                        convergencia europea (+15-20%).
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <div class="signature-section">
+            <div class="signature-grid">
+                <div class="signature-box">
+                    <p><strong>Tasador Certificado</strong></p>
+                    <div class="signature-line"></div>
+                    <p>Colegiado nº XXXX<br>24 de Junio de 2025</p>
+                </div>
+                
+                <div class="signature-box">
+                    <p><strong>Director Técnico</strong></p>
+                    <div class="signature-line"></div>
+                    <p>Consultoría Premium<br>24 de Junio de 2025</p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <div class="brand">CalculaTuCasa</div>
+                <p>© 2025 CalculaTuCasa · Consultoría Inmobiliaria Premium</p>
+                <p>Distrito Salamanca · Madrid | +34 XXX XXX XXX | info@calculatucasa.com</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // Chart defaults
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#94a3b8';
+        
+        // Stage Chart - Gauge (smaller)
+        const stageCtx = document.getElementById('stageChart').getContext('2d');
+        new Chart(stageCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [75, 25],
+                    backgroundColor: ['#f59e0b', 'rgba(148, 163, 184, 0.2)'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                rotation: -90,
+                circumference: 180,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                cutout: '70%',
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // Speed Chart - Gauge (smaller)
+        const speedCtx = document.getElementById('speedChart').getContext('2d');
+        new Chart(speedCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [75, 25],
+                    backgroundColor: ['#4ade80', 'rgba(148, 163, 184, 0.2)'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                rotation: -90,
+                circumference: 180,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                cutout: '70%',
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // Risk Chart - Gauge (smaller)
+        const riskCtx = document.getElementById('riskChart').getContext('2d');
+        new Chart(riskCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [50, 50],
+                    backgroundColor: ['#fbbf24', 'rgba(148, 163, 184, 0.2)'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                rotation: -90,
+                circumference: 180,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                cutout: '70%',
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // Price Distribution Chart
+        const priceDistCtx = document.getElementById('priceDistribution').getContext('2d');
+        new Chart(priceDistCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Serrano', 'Velázquez', 'Don Ramón', 'Padilla', 'Otras'],
+                datasets: [{
+                    label: '€/m² Promedio',
+                    data: [9250, 8450, 7380, 6890, 6420],
+                    backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                    borderRadius: 4
+                }, {
+                    label: 'Media Distrito',
+                    data: [7200, 7200, 7200, 7200, 7200],
+                    type: 'line',
+                    borderColor: '#94a3b8',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 6000,
+                        grid: { color: 'rgba(148, 163, 184, 0.2)' },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('es-ES') + '€';
+                            }
+                        }
+                    },
+                    x: {
+                       grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Valuation Breakdown
+        const valuationCtx = document.getElementById('valuationBreakdown').getContext('2d');
+        new Chart(valuationCtx, {
+            type: 'line',
+            data: {
+                labels: ['Base', 'Planta', 'Estado', 'Parking', 'Trastero', 'Final'],
+                datasets: [{
+                    label: 'Precio €/m²',
+                    data: [8450, 8872, 8695, 9391, 9673, 9673],
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#0f1419',
+                    pointBorderColor: '#f59e0b',
+                    pointBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 8000,
+                        grid: { color: 'rgba(148, 163, 184, 0.2)' },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('es-ES') + '€';
+                            }
+                        }
+                    },
+                     x: {
+                       grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Scenario Matrix
+        const scenarioCtx = document.getElementById('scenarioMatrix').getContext('2d');
+        new Chart(scenarioCtx, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'Continuidad',
+                    data: [{x: 60, y: 4, r: 20}],
+                    backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                    borderColor: '#22c55e'
+                }, {
+                    label: 'Corrección Moderada',
+                    data: [{x: 25, y: -10, r: 15}],
+                    backgroundColor: 'rgba(251, 191, 36, 0.5)',
+                    borderColor: '#fbb_f24'
+                }, {
+                    label: 'Corrección Severa',
+                    data: [{x: 10, y: -20, r: 12}],
+                    backgroundColor: 'rgba(239, 68, 68, 0.5)',
+                    borderColor: '#ef4444'
+                }, {
+                    label: 'Boom',
+                    data: [{x: 5, y: 10, r: 10}],
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    borderColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20 }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Probabilidad (%)'
+                        },
+                        min: 0,
+                        max: 70,
+                        grid: { color: 'rgba(148, 163, 184, 0.2)' }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Impacto en Valor (%)'
+                        },
+                        min: -25,
+                        max: 15,
+                        grid: { color: 'rgba(148, 163, 184, 0.2)' }
+                    }
+                }
+            }
+        });
+
+        // International Benchmark
+        const benchmarkCtx = document.getElementById('internationalBenchmark').getContext('2d');
+        new Chart(benchmarkCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Londres\nMayfair', 'París\n7º Arr.', 'Roma\nCentro', 'Madrid\nSalamanca', 'Lisboa\nChiado'],
+                datasets: [{
+                    label: 'Precio €/m²',
+                    data: [18200, 14800, 8900, 7200, 6800],
+                    backgroundColor: (context) => {
+                        const label = context.chart.data.labels[context.dataIndex];
+                        return label === 'Madrid\nSalamanca' ? 'rgba(245, 158, 11, 0.7)' : 'rgba(148, 163, 184, 0.4)';
+                    },
+                    borderRadius: 4
+                }, {
+                    label: 'Días en mercado',
+                    data: [95, 65, 85, 28, 45],
+                    type: 'line',
+                    borderColor: '#e2e8f0',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    yAxisID: 'y2',
+                    pointRadius: 4,
+                    pointBackgroundColor: '#f59e0b',
+                    pointBorderColor: '#e2e8f0',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20 }
+                    }
+                },
+                scales: {
+                    y: {
+                        position: 'left',
+                        beginAtZero: true,
+                        grid: { color: 'rgba(148, 163, 184, 0.2)' },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('es-ES') + '€';
+                            }
+                        }
+                    },
+                    y2: {
+                        position: 'right',
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' días';
+                            }
+                        }
+                    },
+                    x: {
+                       grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
